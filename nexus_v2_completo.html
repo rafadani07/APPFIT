@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus Fit App</title>
+<meta name="description" content="App fitness completo: treino, dieta, calendário, IA e resumo.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.phone{width:340px;margin:0 auto;background:#1a1a1a;border-radius:28px;padding:10px;border:1px solid #2a2a2a}
+.screen{background:#0a0a0c;border-radius:20px;overflow:hidden;min-height:680px;display:flex;flex-direction:column}
+.page{display:none;flex:1;flex-direction:column}
+.page.active{display:flex}
+.scroll{overflow-y:auto;flex:1}
+
+.nav{display:flex;border-top:0.5px solid #1e1e1e;background:#0a0a0c;flex-shrink:0}
+.nb{flex:1;padding:8px 0 7px;font-size:9px;color:#444;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.nb i{font-size:19px}
+.nb.on{color:#3B82F6}
+
+.ph{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ph-title{font-size:15px;font-weight:500;color:#fff}
+.ph-back{background:none;border:none;color:#3B82F6;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px}
+.ph-sub{font-size:11px;color:#444}
+.divider{height:0.5px;background:#1a1a1a;flex-shrink:0}
+
+/* HOME */
+.ia-strip{display:flex;gap:6px;padding:0 16px 10px;flex-shrink:0}
+.ia-p{display:flex;align-items:center;gap:4px;background:#141414;border:0.5px solid #222;border-radius:20px;padding:4px 8px;font-size:10px;color:#666}
+.ia-dot{width:6px;height:6px;border-radius:50%}
+.d-b{background:#3B82F6}.d-g{background:#10B981}.d-a{background:#F59E0B}.d-p{background:#A78BFA}.d-t{background:#06B6D4}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 8px}
+.c{background:#111;border:0.5px solid #1e1e1e;border-radius:12px;padding:12px;cursor:pointer}
+.c:active{opacity:.7}
+.c-lbl{font-size:9px;color:#444;letter-spacing:1.5px;margin-bottom:5px}
+.c-main{font-size:15px;font-weight:500;color:#fff}
+.c-sub{font-size:11px;color:#555;margin-top:2px}
+.badge{display:inline-block;font-size:10px;border-radius:5px;padding:2px 6px;margin-top:5px}
+.b-g{color:#10B981;background:#10B98118}.b-b{color:#3B82F6;background:#3B82F618}.b-y{color:#F59E0B;background:#F59E0B18}
+
+.cta{margin:0 16px 10px;background:#3B82F6;border:none;border-radius:12px;padding:14px;width:calc(100% - 32px);font-size:14px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.cta:active{opacity:.85}
+.cta-g{background:#10B981}
+
+.ai-coach{margin:0 16px 10px;background:#111;border:0.5px solid #1e1e1e;border-radius:12px;padding:12px}
+.ai-ch{font-size:9px;color:#444;letter-spacing:1.5px;margin-bottom:8px}
+.ai-l{font-size:12px;color:#aaa;margin-bottom:5px;line-height:1.4}
+.ai-l b{font-weight:500}
+.ai-l .echo{color:#3B82F6}.ai-l .aura{color:#10B981}.ai-l .vega{color:#F59E0B}.ai-l .shade{color:#94A3B8}.ai-l .zenith{color:#A78BFA}
+
+/* TREINO */
+.ex-card{padding:12px 16px;border-bottom:0.5px solid #141414}
+.ex-name{font-size:14px;font-weight:500;color:#fff;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.vid-btn{display:flex;align-items:center;gap:4px;background:#1e1e2e;border:0.5px solid #3B82F640;border-radius:8px;padding:4px 8px;font-size:10px;color:#3B82F6;cursor:pointer}
+.vid-btn i{font-size:13px}
+
+.vid-player{background:#0d0d1a;border:0.5px solid #3B82F630;border-radius:10px;padding:12px;margin-bottom:10px}
+.vid-frame{background:#111;border-radius:8px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;border:0.5px solid #222}
+.vid-title{font-size:11px;color:#888;text-align:center}
+.vid-tips{font-size:11px;color:#666;line-height:1.5}
+.vid-tip-row{display:flex;align-items:flex-start;gap:5px;margin-bottom:3px}
+.vid-tip-row i{font-size:12px;color:#3B82F6;margin-top:1px;flex-shrink:0}
+
+.ser-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.ser-n{font-size:10px;color:#444;width:48px}
+.ser-i{font-size:13px;color:#ccc;flex:1}
+.ser-btn{background:#10B98118;border:0.5px solid #10B98140;border-radius:7px;color:#10B981;font-size:10px;padding:5px 9px;cursor:pointer;white-space:nowrap}
+.ser-btn.done{background:#10B98128}
+.rest-blk{margin:6px 16px 0;background:#111;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border:0.5px solid #1e1e1e}
+.rest-v{font-size:20px;font-weight:500;color:#F59E0B}
+.rest-s{font-size:11px;color:#3B82F6;cursor:pointer}
+
+.treino-hdr{padding:10px 16px;background:#0f0f12;border-bottom:0.5px solid #1a1a1a;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.t-name{font-size:13px;font-weight:500;color:#fff}
+.t-timer{font-size:12px;color:#F59E0B}
+
+/* DIETA */
+.macro-hdr{padding:10px 16px;background:#0f0f12;border-bottom:0.5px solid #1a1a1a;flex-shrink:0}
+.macro-row{display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:5px}
+.macro-row span:last-child{color:#ccc}
+.mbar{height:5px;background:#1a1a1a;border-radius:3px;overflow:hidden;margin-bottom:3px}
+.mfill{height:100%;border-radius:3px}
+.macro-chips{display:flex;gap:6px;margin-top:6px}
+.mchip{font-size:10px;color:#666;background:#161616;border:0.5px solid #222;border-radius:6px;padding:3px 8px}
+.mchip b{color:#aaa;font-weight:500}
+
+.ref{padding:12px 16px;border-bottom:0.5px solid #141414}
+.ref-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.ref-name{font-size:13px;font-weight:500;color:#fff}
+.ref-time{font-size:10px;color:#444;background:#161616;border-radius:5px;padding:2px 6px}
+.ref-items{font-size:12px;color:#555;margin-bottom:7px;line-height:1.4}
+.ref-macros{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.rm{font-size:10px;color:#666;background:#141414;border-radius:5px;padding:2px 6px}
+.ref-actions{display:flex;gap:6px}
+.btn-comi{background:#10B98118;border:0.5px solid #10B98140;color:#10B981;font-size:11px;padding:6px 14px;border-radius:8px;cursor:pointer}
+.btn-comi.done{background:#10B98130}
+.btn-trocar{background:#3B82F618;border:0.5px solid #3B82F640;color:#3B82F6;font-size:11px;padding:6px 12px;border-radius:8px;cursor:pointer}
+
+.aura-blk{margin:8px 16px;background:#10B98110;border:0.5px solid #10B98128;border-radius:10px;padding:10px 12px;font-size:12px;color:#34D399;line-height:1.5}
+.aura-blk b{color:#6EE7B7;font-weight:500}
+
+/* CALENDARIO */
+.cal-hdr{padding:10px 16px 0;flex-shrink:0}
+.cal-month{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-m-name{font-size:14px;font-weight:500;color:#fff}
+.cal-nav{background:none;border:none;color:#3B82F6;font-size:18px;cursor:pointer;padding:0 4px}
+.cal-days-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-dh{font-size:9px;color:#444;text-align:center;padding:3px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 16px 10px;flex-shrink:0}
+.cal-day{border-radius:8px;padding:5px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-height:44px;justify-content:center}
+.cal-day:active{opacity:.7}
+.cal-dn{font-size:12px;color:#666}
+.cal-dn.today{color:#3B82F6;font-weight:500}
+.cal-dn.has{color:#ccc}
+.cal-ico{font-size:13px}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:#3B82F6}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:#555}
+.leg-i{font-size:12px}
+
+.cal-detail{margin:0 16px;background:#111;border:0.5px solid #1e1e1e;border-radius:12px;padding:12px}
+.cd-date{font-size:11px;color:#555;margin-bottom:6px}
+.cd-item{font-size:12px;color:#bbb;padding:5px 0;border-bottom:0.5px solid #1a1a1a;display:flex;align-items:center;gap:6px}
+.cd-item i{font-size:14px;color:#3B82F6}
+.zenith-blk{margin:8px 16px;background:#A78BFA18;border:0.5px solid #A78BFA30;border-radius:10px;padding:10px 12px;font-size:12px;color:#C4B5FD;line-height:1.5}
+.zenith-blk b{color:#DDD6FE;font-weight:500}
+
+/* IA HUB */
+.ia-hub-card{margin:0 16px 10px;border-radius:14px;padding:14px;border:0.5px solid}
+.ia-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ia-info{flex:1}
+.ia-iname{font-size:13px;font-weight:500}
+.ia-irole{font-size:10px;margin-top:1px}
+.ia-msg{font-size:12px;margin-top:8px;line-height:1.5;padding-top:8px;border-top:0.5px solid rgba(255,255,255,.06)}
+
+/* RESUMO */
+.resumo-pg{padding:16px;display:flex;flex-direction:column;gap:10px}
+.r-title{font-size:18px;font-weight:500;color:#fff}
+.r-sub{font-size:12px;color:#444}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-c{background:#111;border-radius:10px;padding:10px;border:0.5px solid #1e1e1e}
+.stat-l{font-size:9px;color:#444;letter-spacing:1px;margin-bottom:4px}
+.stat-v{font-size:16px;font-weight:500;color:#fff}
+.stat-d{font-size:10px;color:#10B981;margin-top:2px}
+.vega-card{background:#F59E0B0d;border:0.5px solid #F59E0B28;border-radius:12px;padding:12px}
+.vega-name{font-size:9px;color:#F59E0B;letter-spacing:1.5px;margin-bottom:6px}
+.vega-q{font-size:13px;color:#FDE68A;font-style:italic;line-height:1.6}
+
+/* Suavizar transições entre páginas */
+.page {transition: opacity 0.3s; opacity:0;}
+.page.active {opacity:1;}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">Rafael Fit Nexus v2 — app completo com Home, Treino com vídeos, Dieta, Calendário, IAs e Resumo pós-treino</h2>
+
+<div style="padding:1rem 0">
+<div class="phone" aria-label="Simulação de smartphone">
+<div class="screen">
+
+<!-- HOME -->
+<div class="page active" id="p-home">
+<div class="scroll">
+<div class="ph"><div class="ph-title">NEXUS</div><div class="ph-sub">Terça, 26 mai · 93,75 kg</div></div>
+<div class="ia-strip">
+  <div class="ia-p"><div class="ia-dot d-b"></div>ECHO</div>
+  <div class="ia-p"><div class="ia-dot d-g"></div>AURA</div>
+  <div class="ia-p"><div class="ia-dot d-a"></div>VEGA</div>
+  <div class="ia-p"><div class="ia-dot d-t"></div>ZENITH</div>
+</div>
+<div class="g2">
+  <div class="c" onclick="go('treino')"><div class="c-lbl">TREINO</div><div class="c-main">Superior A</div><div class="c-sub">Supino 80kg</div><div class="badge b-b">8 exercícios</div></div>
+  <div class="c" onclick="go('dieta')"><div class="c-lbl">DIETA</div><div class="c-main">1.350 kcal</div><div class="c-sub">3 / 5 ref.</div><div class="badge b-y">+1.200 meta</div></div>
+  <div class="c"><div class="c-lbl">PESO</div><div class="c-main">93,75 kg</div><div class="c-sub">Meta jul: 91 kg</div><div class="badge b-g">-0,4 kg/sem</div></div>
+  <div class="c" onclick="go('cal')"><div class="c-lbl">CALENDÁRIO</div><div class="c-main">5 seguidos</div><div class="c-sub">Mai 2026</div><div class="badge b-g">ritmo ok</div></div>
+</div>
+<button class="cta" onclick="go('treino')"><i class="ti ti-player-play" aria-hidden="true" style="font-size:14px"></i>Iniciar treino</button>
+<div class="ai-coach">
+  <div class="ai-ch">IA COACH · NEXUS</div>
+  <div class="ai-l"><b class="echo">ECHO —</b> Superior A hoje. Supino 80kg é possível. Bora.</div>
+  <div class="ai-l"><b class="aura">AURA —</b> Proteína ontem: 178g. Hoje precisas de +17g.</div>
+  <div class="ai-l"><b class="vega">VEGA —</b> 5 dias seguidos. Consistência supera motivação.</div>
+  <div class="ai-l"><b class="zenith">ZENITH —</b> Em 7 dias: 92,5 kg no ritmo atual.</div>
+</div>
+<button class="cta" style="background:#A78BFA;margin-top:0" onclick="go('ia')"><i class="ti ti-robot" aria-hidden="true" style="font-size:14px"></i>Ver todas as IAs</button>
+</div>
+<div class="nav">
+  <button class="nb on" onclick="go('home')" aria-label="Ir para Início"><i class="ti ti-home" aria-hidden="true"></i>Início</button>
+  <button class="nb" onclick="go('treino')" aria-label="Ir para Treino"><i class="ti ti-barbell" aria-hidden="true"></i>Treino</button>
+  <button class="nb" onclick="go('dieta')" aria-label="Ir para Dieta"><i class="ti ti-salad" aria-hidden="true"></i>Dieta</button>
+  <button class="nb" onclick="go('cal')" aria-label="Ir para Agenda"><i class="ti ti-calendar" aria-hidden="true"></i>Agenda</button>
+  <button class="nb" onclick="go('ia')" aria-label="Ir para IAs"><i class="ti ti-brain" aria-hidden="true"></i>IAs</button>
+</div>
+</div>
+
+<!-- TREINO -->
+<div class="page" id="p-treino">
+<div class="ph">
+  <button class="ph-back" onclick="go('home')"><i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar</button>
+  <div class="ph-title">Superior A</div>
+</div>
+<div class="treino-hdr">
+  <div class="t-name"><i class="ti ti-clock" aria-hidden="true" style="font-size:12px;vertical-align:-1px;margin-right:4px"></i>Estimado: 55 min</div>
+  <div class="t-timer" id="treino-timer">00:00</div>
+</div>
+<div class="divider"></div>
+<div class="scroll">
+
+<div class="ex-card">
+  <div class="ex-name">
+    Supino reto barra
+    <button class="vid-btn" onclick="toggleVid('v1')"><i class="ti ti-player-play" aria-hidden="true"></i>Ver execução</button>
+  </div>
+  <div id="v1" style="display:none">
+    <div class="vid-player">
+      <div class="vid-frame">
+        <i class="ti ti-brand-youtube" aria-hidden="true" style="font-size:28px;color:#EF4444"></i>
+        <div class="vid-title">Supino reto barra — execução correta</div>
+      </div>
+      <div class="vid-tips">
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Pegada levemente além da largura dos ombros</div>
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Desça até o peito, controle a descida</div>
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Escapulas retraídas durante todo o movimento</div>
+        <div class="vid-tip-row"><i class="ti ti-alert-triangle" aria-hidden="true" style="color:#F59E0B"></i>Não arqueie excessivamente a lombar</div>
+      </div>
+    </div>
+  </div>
+  <div class="ser-row"><div class="ser-n">Série 1</div><div class="ser-i">80 kg · 8 reps</div><button class="ser-btn done">✓ Feito</button></div>
+  <div class="ser-row"><div class="ser-n">Série 2</div><div class="ser-i">80 kg · 7 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 3</div><div class="ser-i">80 kg · 6 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 4</div><div class="ser-i">80 kg · 6 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+</div>
+<div class="rest-blk">
+  <div><div style="font-size:11px;color:#555">Descanso</div><div class="rest-v" id="rv">90s</div></div>
+  <button class="rest-s" onclick="startRest()"><i class="ti ti-player-play" aria-hidden="true" style="font-size:12px;vertical-align:-1px"></i> Iniciar</button>
+</div>
+
+<div class="ex-card">
+  <div class="ex-name">
+    Supino inclinado halter
+    <button class="vid-btn" onclick="toggleVid('v2')"><i class="ti ti-player-play" aria-hidden="true"></i>Ver execução</button>
+  </div>
+  <div id="v2" style="display:none">
+    <div class="vid-player">
+      <div class="vid-frame">
+        <i class="ti ti-brand-youtube" aria-hidden="true" style="font-size:28px;color:#EF4444"></i>
+        <div class="vid-title">Supino inclinado halter — execução</div>
+      </div>
+      <div class="vid-tips">
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Banco a 30-45 graus, não mais</div>
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Descida controlada, cotovelos a 75°</div>
+        <div class="vid-tip-row"><i class="ti ti-alert-triangle" aria-hidden="true" style="color:#F59E0B"></i>Evite deixar os halteres tocarem no topo</div>
+      </div>
+    </div>
+  </div>
+  <div class="ser-row"><div class="ser-n">Série 1</div><div class="ser-i">26 kg · 10 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 2</div><div class="ser-i">26 kg · 10 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 3</div><div class="ser-i">26 kg · 8 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+</div>
+
+<div class="ex-card">
+  <div class="ex-name">
+    Remada articulada
+    <button class="vid-btn" onclick="toggleVid('v3')"><i class="ti ti-player-play" aria-hidden="true"></i>Ver execução</button>
+  </div>
+  <div id="v3" style="display:none">
+    <div class="vid-player">
+      <div class="vid-frame">
+        <i class="ti ti-brand-youtube" aria-hidden="true" style="font-size:28px;color:#EF4444"></i>
+        <div class="vid-title">Remada articulada — execução</div>
+      </div>
+      <div class="vid-tips">
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Cotovelo próximo ao corpo, puxe de costas</div>
+        <div class="vid-tip-row"><i class="ti ti-circle-check" aria-hidden="true"></i>Retração da escápula no pico do movimento</div>
+        <div class="vid-tip-row"><i class="ti ti-alert-triangle" aria-hidden="true" style="color:#F59E0B"></i>Não curve a lombar para trazer a carga</div>
+      </div>
+    </div>
+  </div>
+  <div class="ser-row"><div class="ser-n">Série 1</div><div class="ser-i">70 kg · 10 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 2</div><div class="ser-i">70 kg · 10 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 3</div><div class="ser-i">70 kg · 10 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+  <div class="ser-row"><div class="ser-n">Série 4</div><div class="ser-i">70 kg · 8 reps</div><button class="ser-btn" onclick="markDone(this)">Concluir</button></div>
+</div>
+
+<div style="padding:14px 16px">
+  <button class="cta cta-g" onclick="go('resumo')"><i class="ti ti-check" aria-hidden="true" style="font-size:14px"></i>Finalizar treino</button>
+</div>
+</div>
+<div class="nav">
+  <button class="nb" onclick="go('home')"><i class="ti ti-home" aria-hidden="true"></i>Início</button>
+  <button class="nb on" onclick="go('treino')"><i class="ti ti-barbell" aria-hidden="true"></i>Treino</button>
+  <button class="nb" onclick="go('dieta')"><i class="ti ti-salad" aria-hidden="true"></i>Dieta</button>
+  <button class="nb" onclick="go('cal')"><i class="ti ti-calendar" aria-hidden="true"></i>Agenda</button>
+  <button class="nb" onclick="go('ia')"><i class="ti ti-brain" aria-hidden="true"></i>IAs</button>
+</div>
+</div>
+
+<!-- DIETA -->
+<div class="page" id="p-dieta">
+<div class="ph"><div class="ph-title">Dieta de hoje</div><div class="ph-sub">Segunda, 26 mai</div></div>
+<div class="macro-hdr">
+  <div class="macro-row"><span>Calorias consumidas</span><span>1.350 / 2.550 kcal</span></div>
+  <div class="mbar"><div class="mfill" style="width:53%;background:#3B82F6"></div></div>
+  <div class="macro-chips">
+    <div class="mchip">P <b>115g</b> / 195g</div>
+    <div class="mchip">C <b>130g</b> / 220g</div>
+    <div class="mchip">G <b>45g</b> / 70g</div>
+    <div class="mchip">Água <b>1,2L</b> / 2,5L</div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="scroll">
+
+<div class="ref">
+  <div class="ref-hdr"><div class="ref-name">Café da manhã</div><div class="ref-time">08:00</div></div>
+  <div class="ref-items">4 ovos inteiros · 100g aveia · 1 banana média</div>
+  <div class="ref-macros"><div class="rm">P 45g</div><div class="rm">C 60g</div><div class="rm">G 30g</div><div class="rm">550 kcal</div></div>
+  <div class="ref-actions">
+    <button class="btn-comi done">✓ Comi</button>
+    <button class="btn-trocar">Trocar</button>
+  </div>
+</div>
+
+<div class="ref">
+  <div class="ref-hdr"><div class="ref-name">Almoço</div><div class="ref-time">13:00</div></div>
+  <div class="ref-items">250g frango grelhado · 180g arroz branco · feijão · salada verde</div>
+  <div class="ref-macros"><div class="rm">P 55g</div><div class="rm">C 50g</div><div class="rm">G 15g</div><div class="rm">650 kcal</div></div>
+  <div class="ref-actions">
+    <button class="btn-comi done">✓ Comi</button>
+    <button class="btn-trocar">Trocar</button>
+  </div>
+</div>
+
+<div class="ref">
+  <div class="ref-hdr"><div class="ref-name">Lanche pré-treino</div><div class="ref-time">17:00</div></div>
+  <div class="ref-items">Iogurte natural integral · 1 maçã</div>
+  <div class="ref-macros"><div class="rm">P 15g</div><div class="rm">C 20g</div><div class="rm">G 5g</div><div class="rm">200 kcal</div></div>
+  <div class="ref-actions">
+    <button class="btn-comi" onclick="markComi(this)">Comi</button>
+    <button class="btn-trocar">Trocar</button>
+  </div>
+</div>
+
+<div class="ref">
+  <div class="ref-hdr"><div class="ref-name">Jantar</div><div class="ref-time">20:00</div></div>
+  <div class="ref-items">250g carne ou peixe · 150g arroz · legumes</div>
+  <div class="ref-macros"><div class="rm">P 55g</div><div class="rm">C 45g</div><div class="rm">G 15g</div><div class="rm">600 kcal</div></div>
+  <div class="ref-actions">
+    <button class="btn-comi" onclick="markComi(this)">Comi</button>
+    <button class="btn-trocar">Trocar</button>
+  </div>
+</div>
+
+<div class="ref">
+  <div class="ref-hdr"><div class="ref-name">Ceia</div><div class="ref-time">23:00</div></div>
+  <div class="ref-items">3 ovos mexidos · sem adição de carboidrato</div>
+  <div class="ref-macros"><div class="rm">P 25g</div><div class="rm">C 0g</div><div class="rm">G 15g</div><div class="rm">250 kcal</div></div>
+  <div class="ref-actions">
+    <button class="btn-comi" onclick="markComi(this)">Comi</button>
+    <button class="btn-trocar">Trocar</button>
+  </div>
+</div>
+
+<div class="aura-blk"><b>AURA —</b> Proteína hoje está em 115g — faltam 80g para a meta. Prioriza o jantar com carne vermelha ou peixe. Troca o arroz da ceia por mais uma fonte proteica se necessário.</div>
+<div style="height:8px"></div>
+</div>
+<div class="nav">
+  <button class="nb" onclick="go('home')"><i class="ti ti-home" aria-hidden="true"></i>Início</button>
+  <button class="nb" onclick="go('treino')"><i class="ti ti-barbell" aria-hidden="true"></i>Treino</button>
+  <button class="nb on" onclick="go('dieta')"><i class="ti ti-salad" aria-hidden="true"></i>Dieta</button>
+  <button class="nb" onclick="go('cal')"><i class="ti ti-calendar" aria-hidden="true"></i>Agenda</button>
+  <button class="nb" onclick="go('ia')"><i class="ti ti-brain" aria-hidden="true"></i>IAs</button>
+</div>
+</div>
+
+<!-- CALENDARIO -->
+<div class="page" id="p-cal">
+<div class="cal-hdr">
+  <div class="cal-month">
+    <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+    <div class="cal-m-name" id="cal-mname">Maio 2026</div>
+    <button class="cal-nav" onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="cal-days-hdr">
+    <div class="cal-dh">D</div><div class="cal-dh">S</div><div class="cal-dh">T</div><div class="cal-dh">Q</div><div class="cal-dh">Q</div><div class="cal-dh">S</div><div class="cal-dh">S</div>
+  </div>
+</div>
+<div class="divider"></div>
+<div class="scroll">
+<div class="cal-grid" id="cal-grid"></div>
+<div class="cal-legend">
+  <div class="leg"><div class="leg-i">🏋️</div>Treino feito</div>
+  <div class="leg"><div class="leg-i">⚽</div>Jogo / campo</div>
+  <div class="leg"><div class="leg-i">❌</div>Perdido</div>
+  <div class="leg"><div class="leg-i">😴</div>Descanso</div>
+  <div class="leg"><div class="leg-i">🔄</div>Em andamento</div>
+</div>
+<div class="divider"></div>
+<div id="cal-detail" style="padding:10px 0"></div>
+<div class="zenith-blk"><b>ZENITH —</b> Próximo sábado: jogo previsto. Recomendo treino leve na sexta. Em 30 dias: 91,2 kg no ritmo atual. Chance de meta julho: 78%.</div>
+<div style="height:8px"></div>
+</div>
+<div class="nav">
+  <button class="nb" onclick="go('home')"><i class="ti ti-home" aria-hidden="true"></i>Início</button>
+  <button class="nb" onclick="go('treino')"><i class="ti ti-barbell" aria-hidden="true"></i>Treino</button>
+  <button class="nb" onclick="go('dieta')"><i class="ti ti-salad" aria-hidden="true"></i>Dieta</button>
+  <button class="nb on" onclick="go('cal')"><i class="ti ti-calendar" aria-hidden="true"></i>Agenda</button>
+  <button class="nb" onclick="go('ia')"><i class="ti ti-brain" aria-hidden="true"></i>IAs</button>
+</div>
+</div>
+
+<!-- IA HUB -->
+<div class="page" id="p-ia">
+<div class="ph"><div class="ph-title">IAs do NEXUS</div><div class="ph-sub">5 especialistas</div></div>
+<div class="divider"></div>
+<div class="scroll">
+
+<div style="height:10px"></div>
+<div class="ia-hub-card" style="background:#3B82F610;border-color:#3B82F630">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="ia-avatar" style="background:#3B82F620"><i class="ti ti-barbell" aria-hidden="true" style="color:#3B82F6;font-size:20px"></i></div>
+    <div class="ia-info">
+      <div class="ia-iname" style="color:#60A5FA">ECHO</div>
+      <div class="ia-irole" style="color:#3B82F6">Treinadora pessoal</div>
+    </div>
+  </div>
+  <div class="ia-msg" style="color:#93C5FD">Superior A hoje. Supino 80kg é possível — você estava mais forte na última sessão. 4 séries, mantém o foco na descida controlada. Bora.</div>
+</div>
+
+<div class="ia-hub-card" style="background:#10B98110;border-color:#10B98128">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="ia-avatar" style="background:#10B98120"><i class="ti ti-salad" aria-hidden="true" style="color:#10B981;font-size:20px"></i></div>
+    <div class="ia-info">
+      <div class="ia-iname" style="color:#34D399">AURA</div>
+      <div class="ia-irole" style="color:#10B981">Nutricionista</div>
+    </div>
+  </div>
+  <div class="ia-msg" style="color:#6EE7B7">Ontem fechaste em 178g de proteína — ótimo, mas a meta é 195g. Hoje prioriza carne vermelha no jantar. Se pular a ceia, perde 25g fácil. Água: você bebeu só 1,8L ontem. Hidratação afeta performance diretamente.</div>
+</div>
+
+<div class="ia-hub-card" style="background:#94A3B810;border-color:#94A3B828">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="ia-avatar" style="background:#94A3B820"><i class="ti ti-chart-line" aria-hidden="true" style="color:#94A3B8;font-size:20px"></i></div>
+    <div class="ia-info">
+      <div class="ia-iname" style="color:#CBD5E1">SHADE</div>
+      <div class="ia-irole" style="color:#94A3B8">Analista corporal</div>
+    </div>
+  </div>
+  <div class="ia-msg" style="color:#94A3B8">Esta semana: -0,4 kg. Volume de treino acumulado: +12% vs semana passada. BF% estimado: 23,1% → 22,8%. Você dormiu média de 6,2h — ideal seria 7,5h. Cada hora a menos reduz síntese proteica em ~18%. Consistência: 5/6 treinos. Excelente.</div>
+</div>
+
+<div class="ia-hub-card" style="background:#F59E0B0d;border-color:#F59E0B28">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="ia-avatar" style="background:#F59E0B18"><i class="ti ti-flame" aria-hidden="true" style="color:#F59E0B;font-size:20px"></i></div>
+    <div class="ia-info">
+      <div class="ia-iname" style="color:#FCD34D">VEGA</div>
+      <div class="ia-irole" style="color:#F59E0B">Coach motivacional</div>
+    </div>
+  </div>
+  <div class="ia-msg" style="color:#FDE68A;font-style:italic">"Cinco dias seguidos. Não é sorte — é arquitetura de hábito. A maioria para no terceiro. Você não parou. Cada série completada é um voto pela versão de você que quer se tornar."</div>
+</div>
+
+<div class="ia-hub-card" style="background:#A78BFA10;border-color:#A78BFA28">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="ia-avatar" style="background:#A78BFA20"><i class="ti ti-telescope" aria-hidden="true" style="color:#A78BFA;font-size:20px"></i></div>
+    <div class="ia-info">
+      <div class="ia-iname" style="color:#C4B5FD">ZENITH</div>
+      <div class="ia-irole" style="color:#A78BFA">Visão preditiva</div>
+    </div>
+  </div>
+  <div class="ia-msg" style="color:#DDD6FE">Projeção: 91,2 kg em 30 dias (meta julho = 91 kg). Chance: 78%. Risco identificado: final de semana — padrão histórico mostra queda na dieta. Sábado tem jogo previsto, o que é positivo. Próxima janela crítica: qui-sex desta semana.</div>
+</div>
+
+<div style="height:8px"></div>
+</div>
+<div class="nav">
+  <button class="nb" onclick="go('home')"><i class="ti ti-home" aria-hidden="true"></i>Início</button>
+  <button class="nb" onclick="go('treino')"><i class="ti ti-barbell" aria-hidden="true"></i>Treino</button>
+  <button class="nb" onclick="go('dieta')"><i class="ti ti-salad" aria-hidden="true"></i>Dieta</button>
+  <button class="nb" onclick="go('cal')"><i class="ti ti-calendar" aria-hidden="true"></i>Agenda</button>
+  <button class="nb on" onclick="go('ia')"><i class="ti ti-brain" aria-hidden="true"></i>IAs</button>
+</div>
+</div>
+
+<!-- RESUMO -->
+<div class="page" id="p-resumo">
+<div class="scroll">
+<div class="resumo-pg">
+  <div><div class="r-title">Treino concluído</div><div class="r-sub" style="color:#444">Superior A · 26/05/2026</div></div>
+  <div class="stat-grid">
+    <div class="stat-c"><div class="stat-l">VOLUME TOTAL</div><div class="stat-v">8.450 kg</div><div class="stat-d">+5% vs anterior</div></div>
+    <div class="stat-c"><div class="stat-l">DURAÇÃO</div><div class="stat-v">48 min</div><div class="stat-d">-7 min melhorou</div></div>
+    <div class="stat-c"><div class="stat-l">SUPINO MÁXIMO</div><div class="stat-v">80 kg</div><div class="stat-d">+2 kg no mês</div></div>
+    <div class="stat-c"><div class="stat-l">RECUPERAÇÃO</div><div class="stat-v">86%</div><div class="stat-d">sono 6h (-14%)</div></div>
+  </div>
+  <div class="vega-card">
+    <div class="vega-name">VEGA — COACH</div>
+    <div class="vega-q">"Consistência está ganhando da motivação. Você não esperou sentir vontade — você foi. É assim que se constrói um shape duradouro."</div>
+  </div>
+  <div style="background:#111;border:0.5px solid #1e1e1e;border-radius:12px;padding:12px">
+    <div style="font-size:9px;color:#444;letter-spacing:1.5px;margin-bottom:8px">SHADE — DICA RECUPERAÇÃO</div>
+    <div style="font-size:12px;color:#94A3B8;line-height:1.5">Dormiste 6h ontem — impacto estimado de -14% na síntese proteica. Dorme cedo esta noite. Amanhã é inferior (perna) — exige boa recuperação.</div>
+  </div>
+  <button class="cta" onclick="go('home')" style="background:#1a1a1a;border:0.5px solid #2a2a2a">Fechar</button>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:flex;justify-content:center;gap:5px;margin-top:12px;flex-wrap:wrap">
+  <button onclick="go('home')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">Home</button>
+  <button onclick="go('treino')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">Treino</button>
+  <button onclick="go('dieta')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">Dieta</button>
+  <button onclick="go('cal')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">Calendário</button>
+  <button onclick="go('ia')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">IAs</button>
+  <button onclick="go('resumo')" style="font-size:10px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:7px;padding:5px 9px;cursor:pointer">Resumo</button>
+</div>
+</div>
+
+<script>
+// Acessibilidade: foco automático na página ativa
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{
+    const activePage = document.querySelector('.page.active');
+    if(activePage) activePage.setAttribute('tabindex', '-1');
+    if(activePage) activePage.focus && activePage.focus();
+  }, 300);
+});
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+}
+
+function toggleVid(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function markDone(btn){
+  btn.classList.add('done');
+  btn.textContent='✓ Feito';
+}
+
+function markComi(btn){
+  btn.classList.add('done');
+  btn.textContent='✓ Comi';
+}
+
+let restT=null,restS=90;
+function startRest(){
+  if(restT)return;
+  restS=90;
+  restT=setInterval(()=>{
+    restS--;
+    document.getElementById('rv').textContent=restS+'s';
+    if(restS<=0){clearInterval(restT);restT=null;document.getElementById('rv').textContent='Pronto!';}
+  },1000);
+}
+
+let trainSec=0,trainInt=null;
+function startTrainTimer(){
+  if(trainInt)return;
+  trainInt=setInterval(()=>{
+    trainSec++;
+    const m=Math.floor(trainSec/60).toString().padStart(2,'0');
+    const s=(trainSec%60).toString().padStart(2,'0');
+    const el=document.getElementById('treino-timer');
+    if(el)el.textContent=m+':'+s;
+  },1000);
+}
+
+const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let curMonth=4,curYear=2026;
+const calData={
+  '2026-5-18':'treino','2026-5-19':'treino','2026-5-20':'treino',
+  '2026-5-21':'jogo','2026-5-22':'treino','2026-5-23':'descanso',
+  '2026-5-24':'descanso','2026-5-25':'treino','2026-5-26':'andamento',
+};
+
+function renderCal(){
+  document.getElementById('cal-mname').textContent=months[curMonth]+' '+curYear;
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+  const first=new Date(curYear,curMonth,1).getDay();
+  const days=new Date(curYear,curMonth+1,0).getDate();
+  for(let i=0;i<first;i++){
+    const blank=document.createElement('div');
+    blank.className='cal-day';
+    grid.appendChild(blank);
+  }
+  for(let d=1;d<=days;d++){
+    const key=curYear+'-'+(curMonth+1)+'-'+d;
+    const status=calData[key]||'';
+    const div=document.createElement('div');
+    div.className='cal-day';
+    div.style.background=d===26&&curMonth===4?'#3B82F618':'';
+    div.style.border=d===26&&curMonth===4?'0.5px solid #3B82F640':'';
+    const icons={treino:'🏋️',jogo:'⚽',descanso:'😴',perdido:'❌',andamento:'🔄'};
+    const dn=document.createElement('div');
+    dn.className='cal-dn'+(d===26&&curMonth===4?' today':'')+(status?' has':'');
+    dn.textContent=d;
+    div.appendChild(dn);
+    if(icons[status]){
+      const ic=document.createElement('div');
+      ic.className='cal-ico';
+      ic.textContent=icons[status];
+      div.appendChild(ic);
+    }
+    div.onclick=()=>showCalDetail(d,status);
+    grid.appendChild(div);
+  }
+}
+
+function showCalDetail(d,status){
+  const det=document.getElementById('cal-detail');
+  const labels={treino:'Treino completo',jogo:'Jogo / campo',descanso:'Descanso ativo',perdido:'Treino perdido',andamento:'Em andamento','':`Sem registro`};
+  det.innerHTML=`<div class="cal-detail"><div class="cd-date">${d} de ${months[curMonth]} de ${curYear}</div><div class="cd-item"><i class="ti ti-calendar-event" aria-hidden="true"></i>${labels[status]||'Sem registro'}</div>${status==='treino'?'<div class="cd-item"><i class="ti ti-barbell" aria-hidden="true"></i>Volume: ~8.200 kg</div>':''}${status==='jogo'?'<div class="cd-item"><i class="ti ti-run" aria-hidden="true"></i>~70 min atividade intensa</div>':''}</div>`;
+}
+
+function changeMonth(dir){
+  curMonth+=dir;
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  renderCal();
+  document.getElementById('cal-detail').innerHTML='';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderCal();
+});
+
+setTimeout(()=>{
+  renderCal();
+  startTrainTimer();
+},200);
+</script>
+</body>
+</html>
